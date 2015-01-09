@@ -39,51 +39,26 @@ Graph::Graph(int V)
     cout << V2 << " vertices are randomly selected to construct the 2nd sub-graph" << endl;
     // vertex id list: [0..V1-1], [V1, V-1]
     int degree = 0;
-    for (int i = 0; i < V1; i++) {
+    for (int i = 0; i < V; i++) {
         // randomly determine the No. of neighbors for the current vertex
         srand(static_cast<unsigned int>(time(0)));
         degree = rand() % (MAX_DEGREE - MIN_DEGREE + 1) + MIN_DEGREE;
         cout << degree << " neighbors will be attached to vertex " << i << endl;
-        cout << adj[i].size() << " of them are already there " << endl;
+        //cout << adj[i].size() << " of them are already there " << endl;
         int n = degree - adj[i].size();
-        cout << "Aditional " << n << " ones are: " << endl;
+        //cout << "Aditional " << n << " ones are: " << endl;
         for (int j = 0; j < n; j++) {
-            cout << "loop index j: " << j << " ===> "; 
+            //cout << "loop index j: " << j << " ===> "; 
             // randomly determine these neighbors
             srand(static_cast<unsigned int>(time(0)));
-            int randomNeighbor = rand() % V1;
+            int randomNeighbor = i < V1 ? rand() % V1 : rand() % V2 + V1;
             bool found = (find(adj[i].begin(), adj[i].end(), randomNeighbor) != adj[i].end());
             while (randomNeighbor == i || found == true) {
                 srand(static_cast<unsigned int>(time(0)));
-                randomNeighbor = rand() % V1;
+                randomNeighbor = i < V1 ? rand() % V1 : rand() % V2 + V1;
                 found = (find(adj[i].begin(), adj[i].end(), randomNeighbor) != adj[i].end());
             }
-            cout << randomNeighbor << endl;
-            adj[i].push_back(randomNeighbor);
-            adj[randomNeighbor].push_back(i);
-        }
-    }
-
-    for (int i = V1; i < V; i++) {
-        // randomly determine the No. of neighbors for the current vertex
-        srand(static_cast<unsigned int>(time(0)));
-        degree = rand() % (MAX_DEGREE - MIN_DEGREE + 1) + MIN_DEGREE;
-        cout << degree << " neighbors will be attached to vertex " << i << endl;
-        cout << adj[i].size() << " of them are already there " << endl;
-        int n = degree - adj[i].size();
-        cout << "Aditional " << n << " ones are: " << endl;
-        for (int j = 0; j < n; j++) {
-            cout << "loop index j: " << j << " ===> "; 
-            // randomly determine these neighbors
-            srand(static_cast<unsigned int>(time(0)));
-            int randomNeighbor = rand() % V2 + V1;
-            bool found = (find(adj[i].begin(), adj[i].end(), randomNeighbor) != adj[i].end());
-            while (randomNeighbor == i || found == true) {
-                srand(static_cast<unsigned int>(time(0)));
-                randomNeighbor = rand() % V2 + V1;
-                found = (find(adj[i].begin(), adj[i].end(), randomNeighbor) != adj[i].end());
-            }
-            cout << randomNeighbor << endl;
+            //cout << randomNeighbor << endl;
             adj[i].push_back(randomNeighbor);
             adj[randomNeighbor].push_back(i);
         }
