@@ -92,15 +92,15 @@ SingleBridgeGraph::SingleBridgeGraph(int V) {
     V1 = rand_r(&seed) % V;
     V2 = V - V1;
   }
-  cout << " " << V1
+  cout << endl << " " << V1
        << " vertices are randomly selected to construct the 1st sub-graph"
        << endl;
-  cout << " " << V2
+  cout << endl << " " << V2
        << " vertices are randomly selected to construct the 2nd sub-graph"
        << endl;
   // vertex id list for the two sub-graphs: [0..V1-1] and [V1, V-1]
   int degree = 0;
-  cout << " Generating the single-bridge graph... " << endl;
+  cout << endl << " Generating the single-bridge graph... " << endl;
   double progress = 0.0;
   for (int i = 0; i < V; i++) {
     // randomly determine the number of neighbors for the current vertex
@@ -129,16 +129,16 @@ SingleBridgeGraph::SingleBridgeGraph(int V) {
     }
   }
   cout << " done!" << endl;
-  cout << " Randomly build a bridge between the two sub-graphs... ";
+  cout << endl << " Randomly build a bridge between the two sub-graphs... ";
   seed = static_cast<uint>(time(0));
   int bridgeVertex1 = rand_r(&seed) % V1;
   int bridgeVertex2 = rand_r(&seed) % V2 + V1;
   addEdge(bridgeVertex1, bridgeVertex2);
   uint64 elapsedTime = getCurrentTimeMs() - startTime;
   cout << " done!" << endl;
-  cout << " The built bridge is (" << bridgeVertex1 << ", " << bridgeVertex2
-       << ")" << endl;
-  cout << " A graph with " << V << " vertices and " << this->E
+  cout << endl << " The built bridge is (" << bridgeVertex1 << ", "
+       << bridgeVertex2 << ")." << endl;
+  cout << endl << " A graph with " << V << " vertices and " << this->E
        << " undirected edges has been constructed." << endl;
   cout << " Time consumed for graph construction: " << elapsedTime << " ms"
        << endl;
@@ -206,7 +206,7 @@ void SingleBridgeGraph::bridgeProbe(int u, bool visited[], int disc[],
       // If the lowest vertex reachable from subtree under v is
       // below u in DFS tree, then u-v is a bridge
       if (low[v] > disc[u])
-        cout << endl << " Found it! The bridge is (" << u << ", " << v << ")"
+        cout << endl << " Found it! The bridge is (" << u << ", " << v << ")."
              << endl;
     } else if (v != parent[u]) {
       // Update low value of u for parent function calls.
