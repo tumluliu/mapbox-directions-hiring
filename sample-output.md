@@ -5,7 +5,7 @@ This is an interesting problem posted by MapBox directions team. [ref](http://ww
 My solution contains two steps: 
 
 1. Randomly generate a single-bridge graph with a given number of vertex. 
-2. Find the bridge with Tarjon's bridge-finding algorithm. 
+2. Find the bridge with DFS traversal of the graph.
 
 Here we go. 
 
