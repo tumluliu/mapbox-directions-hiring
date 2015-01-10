@@ -1,8 +1,10 @@
-bridge-finder: bridge-finder.o
-	g++ -o bridge-finder bridge-finder.o
+all: bridge-finder
 
-bridge-finder.o:
+bridge-finder: bridge-finder.o
+	g++ bridge-finder.o -o bridge-finder
+
+bridge-finder.o: bridge-finder.cpp
 	g++ -c bridge-finder.cpp
 
 clean:
-	rm bridge-finder.o bridge-finder
+	rm -rf *o bridge-finder
