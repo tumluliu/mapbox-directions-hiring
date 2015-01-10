@@ -1,13 +1,13 @@
 /*
+ * Copyright 2015 Lu LIU
  * =====================================================================================
  *
  *       Filename:  bridge-finder.cpp
  *
  *    Description:  A C++ program to find the single bridge in an undirected
- *graph.
- *                  The problem is from MapBox directions team's hiring page.
- *Please
- *                  refer to http://www.mapbox.com/blog/directions-hiring/
+ *                  graph. The problem is from MapBox directions team's hiring
+ *                  page. Please refer to
+ *                  http://www.mapbox.com/blog/directions-hiring/
  *
  *        Version:  1.0
  *        Created:  2015/01/10 16时35分46秒
@@ -22,38 +22,58 @@
  */
 
 #include <stdlib.h>
+#include <sys/time.h>
 #include <iostream>
 #include <list>
-#include <sys/time.h>
 #include <ctime>
+#include <cstdint>
 #include <algorithm>
 #define NIL -1
 #define MAX_DEGREE 7
 #define MIN_DEGREE 3
 
-using namespace std;
-typedef unsigned long long uint64;
+using std::cout;
+using std::cin;
+using std::endl;
+using std::fixed;
+using std::list;
+using std::min;
 
-// A class that represents an undirected graph
-class Graph {
-  int V;          // No. of vertices
-  int E;          // No. of edges
-  list<int> *adj; // A dynamic array of adjacency lists
+typedef uint64_t uint64;
+typedef unsigned int uint;
+
+/*
+ * =====================================================================================
+ *        Class:  SingleBridgeGraph
+ *  Description:  A class that represents a single-bridge undirected graph
+ * =====================================================================================
+ */
+class SingleBridgeGraph {
+  // number of vertices and edges
+  int V, E;
+  // A dynamic array of adjacency lists
+  list<int> *adj;
   void bridgeProbe(int v, bool visited[], int disc[], int low[], int parent[]);
   uint64 getCurrentTimeMs();
 
 public:
-  Graph(int V);               // Constructor
-  void addEdge(int v, int w); // function to add an edge to graph
-  void bridge();              // prints all bridges
+  explicit SingleBridgeGraph(int V);
+  void addEdge(int v, int w);
+  void findBridges();
 };
 
-Graph::Graph(int V) {
-  // Create a graph with following attributes:
-  // 1. the number of vertex is given by user input;
-  // 2. for each vertex, random number (between MIN_DEGREE and MAX_DEGREE) of
-  // neighbors will be attached;
-  // 3. there must be ONLY one bridge in the graph.
+/*
+ *--------------------------------------------------------------------------------------
+ *       Class:  SingleBridgeGraph
+ *      Method:  SingleBridgeGraph :: SingleBridgeGraph
+ * Description:  Create a graph with following attributes:
+ *               1. the number of vertex is given by user input;
+ *               2. for each vertex, random number (between MIN_DEGREE and
+ *                  MAX_DEGREE) of neighbors will be attached;
+ *               3. there must be ONLY one bridge in the graph.
+ *--------------------------------------------------------------------------------------
+ */
+SingleBridgeGraph::SingleBridgeGraph(int V) {
   uint64 startTime = getCurrentTimeMs();
   this->V = V;
   this->E = 0;
@@ -62,14 +82,14 @@ Graph::Graph(int V) {
   // Their number of vertices (V1 and V2) are randomly determined, but the sum
   // is V.
   int V1, V2;
-  srand(static_cast<unsigned int>(time(0)));
-  V1 = rand() % V;
+  uint seed = static_cast<uint>(time(0));
+  V1 = rand_r(&seed) % V;
   V2 = V - V1;
   // According to the "each vertex has at least 3 neighbors" request, there
   // should be at least 8 vertices in the graph (4 for each sub-graph).
   while (V1 < 4 || V2 < 4) {
-    srand(static_cast<unsigned int>(time(0)));
-    V1 = rand() % V;
+    seed = static_cast<uint>(time(0));
+    V1 = rand_r(&seed) % V;
     V2 = V - V1;
   }
   cout << " " << V1
@@ -84,23 +104,24 @@ Graph::Graph(int V) {
   double progress = 0.0;
   for (int i = 0; i < V; i++) {
     // randomly determine the number of neighbors for the current vertex
-    progress = (double)(i + 1) / (double)V * 100.0;
+    progress = static_cast<double>(i + 1) / static_cast<double>(V) * 100.0;
     cout.precision(1);
     cout << fixed << progress << "%\r";
     cout.flush();
-    srand(static_cast<unsigned int>(time(0)));
-    degree = rand() % (MAX_DEGREE - MIN_DEGREE + 1) + MIN_DEGREE;
+    seed = static_cast<uint>(time(0));
+    degree = rand_r(&seed) % (MAX_DEGREE - MIN_DEGREE + 1) + MIN_DEGREE;
     int n = degree - adj[i].size();
     for (int j = 0; j < n; j++) {
       // randomly determine these neighbors
       // they should be unique, and not be the current vertex (otherwise there
       // will be a cycle)
-      int randomNeighbor = i < V1 ? rand() % V1 : rand() % V2 + V1;
+      int randomNeighbor =
+          i < V1 ? rand_r(&seed) % V1 : rand_r(&seed) % V2 + V1;
       bool found =
           (find(adj[i].begin(), adj[i].end(), randomNeighbor) != adj[i].end());
       while (randomNeighbor == i || found == true) {
-        srand(static_cast<unsigned int>(time(0)));
-        randomNeighbor = i < V1 ? rand() % V1 : rand() % V2 + V1;
+        seed = static_cast<uint>(time(0));
+        randomNeighbor = i < V1 ? rand_r(&seed) % V1 : rand_r(&seed) % V2 + V1;
         found = (find(adj[i].begin(), adj[i].end(), randomNeighbor) !=
                  adj[i].end());
       }
@@ -109,9 +130,9 @@ Graph::Graph(int V) {
   }
   cout << " done!" << endl;
   cout << " Randomly build a bridge between the two sub-graphs... ";
-  srand(static_cast<unsigned int>(time(0)));
-  int bridgeVertex1 = rand() % V1;
-  int bridgeVertex2 = rand() % V2 + V1;
+  seed = static_cast<uint>(time(0));
+  int bridgeVertex1 = rand_r(&seed) % V1;
+  int bridgeVertex2 = rand_r(&seed) % V2 + V1;
   addEdge(bridgeVertex1, bridgeVertex2);
   uint64 elapsedTime = getCurrentTimeMs() - startTime;
   cout << " done!" << endl;
@@ -123,13 +144,27 @@ Graph::Graph(int V) {
        << endl;
 }
 
-void Graph::addEdge(int u, int v) {
+/*
+ *--------------------------------------------------------------------------------------
+ *       Class:  SingleBridgeGraph
+ *      Method:  SingleBridgeGraph :: addEdge
+ * Description:  add forward and backward edges to the graph between u and v
+ *--------------------------------------------------------------------------------------
+ */
+void SingleBridgeGraph::addEdge(int u, int v) {
   adj[u].push_back(v);
-  adj[v].push_back(u); // Note: the graph is undirected
+  adj[v].push_back(u);
   E++;
 }
 
-uint64 Graph::getCurrentTimeMs() {
+/*
+ *--------------------------------------------------------------------------------------
+ *       Class:  SingleBridgeGraph
+ *      Method:  SingleBridgeGraph :: getCurrentTimeMs
+ * Description:  Get current time in milliseconds
+ *--------------------------------------------------------------------------------------
+ */
+uint64 SingleBridgeGraph::getCurrentTimeMs() {
   struct timeval tv;
   gettimeofday(&tv, NULL);
   uint64 ret = tv.tv_usec;
@@ -138,53 +173,60 @@ uint64 Graph::getCurrentTimeMs() {
   return ret;
 }
 
-// A recursive function that finds and prints bridges using DFS traversal
-// u --> The vertex to be visited next
-// visited[] --> keeps tract of visited vertices
-// disc[] --> Stores discovery times of visited vertices
-// parent[] --> Stores parent vertices in DFS tree
-void Graph::bridgeProbe(int u, bool visited[], int disc[], int low[],
-                        int parent[]) {
-  // A static variable is used for simplicity, we can avoid use of static
-  // variable by passing a pointer.
+/*
+ *--------------------------------------------------------------------------------------
+ *       Class:  SingleBridgeGraph
+ *      Method:  SingleBridgeGraph :: bridgeProbe
+ * Description:  A recursive function that finds and prints bridges using DFS
+ *               traversal.
+ *               u --> The vertex to be visited next
+ *               visited[] --> keeps track of visited vertices
+ *               disc[] --> Stores discovery times of visited vertices
+ *               parent[] --> Stores parent vertices in DFS tree
+ *--------------------------------------------------------------------------------------
+ */
+void SingleBridgeGraph::bridgeProbe(int u, bool visited[], int disc[],
+                                    int low[], int parent[]) {
   static int time = 0;
-
   // Mark the current node as visited
   visited[u] = true;
-
   // Initialize discovery time and low value
   disc[u] = low[u] = ++time;
-
-  // Go through all vertices aadjacent to this
+  // Go through all vertices adjacent to this
   list<int>::iterator i;
   for (i = adj[u].begin(); i != adj[u].end(); ++i) {
-    int v = *i; // v is current adjacent of u
-
+    int v = *i;
     // If v is not visited yet, then recur for it
     if (!visited[v]) {
       parent[v] = u;
       bridgeProbe(v, visited, disc, low, parent);
-
       // Check if the subtree rooted with v has a connection to
       // one of the ancestors of u
       low[u] = min(low[u], low[v]);
-
       // If the lowest vertex reachable from subtree under v is
       // below u in DFS tree, then u-v is a bridge
       if (low[v] > disc[u])
         cout << endl << " Found it! The bridge is (" << u << ", " << v << ")"
              << endl;
-    }
-
-    // Update low value of u for parent function calls.
-    else if (v != parent[u])
+    } else if (v != parent[u]) {
+      // Update low value of u for parent function calls.
       low[u] = min(low[u], disc[v]);
+    }
   }
 }
 
-// DFS based function to find all bridges. It uses recursive function
-// bridgeProbe()
-void Graph::bridge() {
+/*
+ *--------------------------------------------------------------------------------------
+ *       Class:  SingleBridgeGraph
+ *      Method:  SingleBridgeGraph :: findBridges
+ * Description:  DFS based function to find all bridges. It uses recursive
+ *               function bridgeProbe(). Please note that the method is not
+ *               invented by me. The findBridges() and bridgeProbe() functions
+ *               are modified from that on
+ *               [geeksforgeeks.org](http://www.geeksforgeeks.org/bridge-in-a-graph/)
+ *--------------------------------------------------------------------------------------
+ */
+void SingleBridgeGraph::findBridges() {
   // Mark all the vertices as not visited
   bool *visited = new bool[V];
   int *disc = new int[V];
@@ -217,7 +259,7 @@ int main() {
   cout << " My solution contains two steps: " << endl << endl;
   cout << " 1. Randomly generate a single-bridge graph with a given number of "
           "vertex. " << endl;
-  cout << " 2. Find the bridge with Tarjon's bridge-finding algorithm. " << endl
+  cout << " 2. Find the bridge with DFS traversal of the graph. " << endl
        << endl;
   cout << " Here we go. " << endl;
   cout << endl << " ## Step 1" << endl << endl;
@@ -228,10 +270,10 @@ int main() {
     cin >> V;
   }
 
-  Graph g(V);
+  SingleBridgeGraph g(V);
   cout << endl << " ## Step 2" << endl << endl;
   cout << " Searching for the bridge..." << endl;
-  g.bridge();
+  g.findBridges();
   cout << endl << " Finished, thanks." << endl << endl;
   cout << " The codes are available at "
           "[github](https://github.com/tumluliu/mapbox-directions-hiring)."
