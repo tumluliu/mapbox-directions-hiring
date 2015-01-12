@@ -58,6 +58,7 @@ class SingleBridgeGraph {
 
 public:
   explicit SingleBridgeGraph(int V);
+  ~SingleBridgeGraph();
   void addEdge(int v, int w);
   void findBridges();
 };
@@ -142,6 +143,10 @@ SingleBridgeGraph::SingleBridgeGraph(int V) {
        << " undirected edges has been constructed." << endl;
   cout << " Time consumed for graph construction: " << elapsedTime << " ms"
        << endl;
+}
+
+SingleBridgeGraph::~SingleBridgeGraph() {
+    delete[] adj;
 }
 
 /*
@@ -248,6 +253,10 @@ void SingleBridgeGraph::findBridges() {
   uint64 elapsedTime = getCurrentTimeMs() - startTime;
   cout << " Time consumed for finding the bridge: " << elapsedTime << " ms"
        << endl;
+  delete visited;
+  delete disc;
+  delete low;
+  delete parent;
 }
 
 int main() {
