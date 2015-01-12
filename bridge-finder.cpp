@@ -145,6 +145,13 @@ SingleBridgeGraph::SingleBridgeGraph(int V) {
        << endl;
 }
 
+/*
+ *--------------------------------------------------------------------------------------
+ *       Class:  SingleBridgeGraph
+ *      Method:  SingleBridgeGraph :: ~SingleBridgeGraph
+ * Description:  deallocate the memory occupied by the adjacency list
+ *--------------------------------------------------------------------------------------
+ */
 SingleBridgeGraph::~SingleBridgeGraph() {
     delete[] adj;
 }
